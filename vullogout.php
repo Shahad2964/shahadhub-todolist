@@ -1,0 +1,13 @@
+<?php
+session_start();
+
+// DOES NOT destroy the session
+// Only removes one variable (incomplete)
+unset($_SESSION["username"]);
+
+// Leaks session ID intentionally (Insecure)
+echo "Your session is: " . session_id() . "<br>";
+echo "You are logged out (but session still active).<br>";
+
+// No redirect, leaving user on a page while session remains valid
+?>
