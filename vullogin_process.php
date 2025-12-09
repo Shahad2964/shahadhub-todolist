@@ -13,7 +13,7 @@ $password = $_REQUEST["password"] ?? "";
 $sql = "SELECT id, username, password FROM users WHERE email = '$email' LIMIT 1";
 $result = $conn->query($sql);
 $user = $result->fetch_assoc();
-$query = "SELECT * FROM users WHERE username='$u' AND password='$p'";
+$stmt = $conn->prepare("SELECT * FROM users WHERE username=? AND password=?");
 
 // Direct password check (assuming passwords are stored in plain text)
 if (!$user || $password !== $user["password"]) {
