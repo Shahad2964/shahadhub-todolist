@@ -1,8 +1,70 @@
-name: DevSecOps Pipeline
-on: [push]
+name: Secure CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  test:
-    runs-on:
+
+  # -----------------------------
+  # 1. Static Analysis (SAST) + SCA
+  # -----------------------------
+  sast_and_sca:
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # SonarQube SAST Scan (Cloud or Local)
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      with:
+        projectBaseDir: .
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    # Dependency Check (SCA)
+    - name: Dependency-Check (OWASP)
+      uses: dependency-check/DependencyCheck_Action@main
+      with:
+        project: "PHP To Do"
+        path: "."
+        format: "HTML"
+        out: "reports"
+
+    - name: Upload SCA Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: dependency-check-report
+        path: reports
+
+  # -----------------------------
+  # 2. Dynamic Analysis (DAST)
+  # -----------------------------
+  dast_scan:
+    runs-on: ubuntu-latest
+    needs: sast_and_sca
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Run your PHP app temporarily
+    - name: Start PHP App
+      run: |
+        php -S 0.0.0.0:8080 -t .
+      background: true
+
+    # Wait few seconds for server to start
+    - name: Wait
+      run: sleep 5
+
+    # ZAP Baseline DAST
+    - name: OWASP ZAP Baseline Scan
+      uses: zaproxy/action-baseline@v0.11.0
+      with:
+        target: "http://localhost:8080"
+
