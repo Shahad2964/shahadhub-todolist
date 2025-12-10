@@ -14,7 +14,6 @@ session_start();
     <h1>Send Feedback (Insecure Version)</h1>
 
     <?php if (isset($_GET['sent'])): ?>
-      <!-- No sanitization – vulnerable to XSS -->
       <p class="success">Feedback sent: <?php echo $_GET['sent']; ?></p>
     <?php endif; ?>
 

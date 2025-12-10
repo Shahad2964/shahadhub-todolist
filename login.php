@@ -23,7 +23,6 @@ session_start();
       <p class="error">Error: <?php echo $_GET['error']; ?></p>
     <?php endif; ?>
 
-    <!-- No client-side validation -->
     <form action="login_process.php" method="get"> 
       <!-- Using GET makes credentials visible in URL -->
       

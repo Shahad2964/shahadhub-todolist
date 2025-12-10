@@ -13,7 +13,6 @@
     <h1>Create an Account</h1>
 
 
-    <!-- Debug info (insecure) -->
     <p>Debug: users table has (id, username, email, password)</p>
 
     <form action="register_process.php" method="post">

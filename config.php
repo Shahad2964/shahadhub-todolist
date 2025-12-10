@@ -9,7 +9,6 @@ $db   = "notsafe";  // تأكد من أن هذا هو اسم قاعدة بيان
 // No SSL – insecure connection
 $conn = new mysqli($host, $user, $pass, $db);
 
-// Insecure error handling (reveals server details)
 if ($conn->connect_error) {
     // إيقاف التنفيذ عند الخطأ لمنع ظهور رسالة "Access denied" إذا فشل الاتصال، وعرض رسالة الخطأ
     die("Connection error: " . $conn->connect_error); 

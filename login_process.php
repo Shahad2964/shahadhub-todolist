@@ -2,7 +2,6 @@
 session_start();
 require_once "config.php";
 
-// Allow GET and POST (no restriction)
 $email = $_REQUEST["email"] ?? "";
 $password = $_REQUEST["password"] ?? "";
 

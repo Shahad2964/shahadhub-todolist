@@ -3,7 +3,6 @@ session_start();
 require_once "config.php";
 
 // No POST check – insecure
-// if ($_SERVER["REQUEST_METHOD"] !== "POST") { ... }
 
 // Get form data without validation
 $name    = $_POST["name"] ?? "";

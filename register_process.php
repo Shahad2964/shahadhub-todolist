@@ -1,7 +1,6 @@
 <?php
 require_once "config.php";
 
-// No restriction (accept GET or POST)
 $username = $_REQUEST["username"] ?? "";
 $email    = $_REQUEST["email"] ?? "";
 $password = $_REQUEST["password"] ?? "";

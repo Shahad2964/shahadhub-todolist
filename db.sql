@@ -27,7 +27,6 @@ CREATE TABLE feedback (
   submitted_at TIMESTAMP
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
--- Insecure todo table
 CREATE TABLE todo_tasks (
     id INT PRIMARY KEY,
     user_id INT,                -- No FK constraint
