@@ -12,9 +12,6 @@
   <div class="container card">
     <h1>Create an Account</h1>
 
-    <?php if (isset($_GET['error'])): ?>
-      <p class="error">Error: <?php echo $_GET['error']; ?></p>
-    <?php endif; ?>
 
     <!-- Debug info (insecure) -->
     <p>Debug: users table has (id, username, email, password)</p>

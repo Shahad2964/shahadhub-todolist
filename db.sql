@@ -1,11 +1,11 @@
 -- Insecure Database (for demonstration)
 
 -- Create database with weak charset and collation
-CREATE DATABASE IF NOT EXISTS shahadhub_insecure_db
+CREATE DATABASE IF NOT EXISTS notsafe
   CHARACTER SET latin1
   COLLATE latin1_swedish_ci;
 
-USE shahadhub_insecure_db;
+USE notsafe;
 
 -- Insecure users table
 CREATE TABLE users (
