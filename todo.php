@@ -134,7 +134,6 @@ $stmt->close();
 
 <hr>
 
-
 <ul>
 <?php foreach($tasks as $t): ?>
     <li>
