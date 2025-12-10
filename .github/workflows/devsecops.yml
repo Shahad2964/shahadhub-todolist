@@ -11,23 +11,16 @@ permissions:
   actions: read
   security-events: write
 
+# -------------------------
+# 1) SAST Job (SonarCloud)
+# -------------------------
 jobs:
-
-  build:
+  sast:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-
-      # ----------------------
-      # SAST: SonarCloud
-      # ----------------------
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
@@ -38,9 +31,15 @@ jobs:
             -Dsonar.organization=shahad2964
             -Dsonar.sources=.
 
-      # ----------------------
-      # SCA: OWASP Dependency-Check
-      # ----------------------
+# -------------------------
+# 2) SCA Job (Dependency-Check)
+# -------------------------
+  sca:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Dependency-Check (SCA)
         uses: dependency-check/DependencyCheck_Action@main
         with:
@@ -55,10 +54,11 @@ jobs:
           name: dependency-check-report
           path: reports
 
-  dast_scan:
+# -------------------------
+# 3) Build & Run App (for DAST)
+# -------------------------
+  build:
     runs-on: ubuntu-latest
-    needs: build
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -67,6 +67,16 @@ jobs:
         run: |
           php -S 0.0.0.0:8080 -t . &
           sleep 5
+
+# -------------------------
+# 4) DAST Job (depends on build)
+# -------------------------
+  dast:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.11.0
