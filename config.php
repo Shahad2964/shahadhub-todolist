@@ -1,17 +1,17 @@
 <?php
-// config.php - Modified for common XAMPP environment
-
+// Database connection settings
 $host = "localhost";
-$user = "root";     // غالبًا ما يكون المستخدم الافتراضي
-$pass = "";         // غالباً لا يوجد كلمة مرور في XAMPP/WAMPP
-$db   = "notsafe";  // تأكد من أن هذا هو اسم قاعدة بياناتك
+$user = "root";       // XAMPP default
+$pass = "";           // XAMPP default (empty)
+$db   = "shahadhub_db";
 
-// No SSL – insecure connection
+// Create connection
 $conn = new mysqli($host, $user, $pass, $db);
 
+// Check connection
 if ($conn->connect_error) {
-    // إيقاف التنفيذ عند الخطأ لمنع ظهور رسالة "Access denied" إذا فشل الاتصال، وعرض رسالة الخطأ
-    die("Connection error: " . $conn->connect_error); 
+    die("Database connection failed: " . $conn->connect_error);
 }
-// ...
+
+$conn->set_charset("utf8mb4");
 ?>

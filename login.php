@@ -1,4 +1,6 @@
 <?php
+// This page displays the login form
+// Processing happens in login_process.php
 session_start();
 ?>
 <!DOCTYPE html>
@@ -6,35 +8,29 @@ session_start();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - ShahadHub (Insecure)</title>
+  <title>Login - ShahadHub</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container card">
-    <h1>Login (Insecure Version)</h1>
+    <h1>Login</h1>
 
     <?php if (isset($_GET['registered'])): ?>
-      <!-- No sanitization -->
-      <p class="success">Registration successful! <?php echo $_GET['registered']; ?></p>
+      <p class="success">Registration successful! You can now log in.</p>
     <?php endif; ?>
 
     <?php if (isset($_GET['error'])): ?>
-      <!-- XSS vulnerability (no htmlspecialchars) -->
-      <p class="error">Error: <?php echo $_GET['error']; ?></p>
+      <p class="error">Error: <?php echo htmlspecialchars($_GET['error']); ?></p>
     <?php endif; ?>
 
-    <form action="login_process.php" method="get"> 
-      <!-- Using GET makes credentials visible in URL -->
-      
+    <form action="login_process.php" method="post">
       <label for="email">Email Address</label>
-      <!-- No email type, no required -->
-      <input type="text" id="email" name="email">
+      <input type="email" id="email" name="email" required>
 
       <label for="password">Password</label>
-      <!-- No required -->
-      <input type="text" id="password" name="password">
+      <input type="password" id="password" name="password" required>
 
-      <button type="submit" class="btn">Login (Insecure)</button>
+      <button type="submit" class="btn">Login</button>
     </form>
 
     <p>Don't have an account? <a href="register.php">Register</a></p>

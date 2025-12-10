@@ -1,29 +1,39 @@
 <?php
+// This page displays the login form
+// Processing happens in login_process.php
 session_start();
-require_once "config.php";
-
-$email = $_REQUEST["email"] ?? "";
-$password = $_REQUEST["password"] ?? "";
-
-// No validation for empty fields
-// No email format check
-
-// Direct SQL query – vulnerable to SQL Injection
-$sql = "SELECT id, username, password FROM users WHERE email = '$email' LIMIT 1";
-$result = $conn->query($sql);
-$user = $result->fetch_assoc();
-$stmt = $conn->prepare("SELECT * FROM users WHERE username=? AND password=?");
-
-// Direct password check (assuming passwords are stored in plain text)
-if (!$user || $password !== $user["password"]) {
-    header("Location: login.php?error=Invalid email or password");
-    exit;
-}
-
-// Login successful
-$_SESSION["user_id"] = $user["id"];
-$_SESSION["username"] = $user["username"];
-
-header("Location: todo.php");
-exit;
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - ShahadHub</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container card">
+    <h1>Login</h1>
+
+    <?php if (isset($_GET['registered'])): ?>
+      <p class="success">Registration successful! You can now log in.</p>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['error'])): ?>
+      <p class="error">Error: <?php echo htmlspecialchars($_GET['error']); ?></p>
+    <?php endif; ?>
+
+    <form action="login_process.php" method="post">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+
+      <button type="submit" class="btn">Login</button>
+    </form>
+
+    <p>Don't have an account? <a href="register.php">Register</a></p>
+  </div>
+</body>
+</html>

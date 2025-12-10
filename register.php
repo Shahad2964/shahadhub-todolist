@@ -1,4 +1,6 @@
 <?php
+// This page only displays the registration form
+// Processing happens in: register_process.php
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -12,18 +14,19 @@
   <div class="container card">
     <h1>Create an Account</h1>
 
-
-    <p>Debug: users table has (id, username, email, password)</p>
+    <?php if (isset($_GET['error'])): ?>
+      <p class="error">Error: <?php echo htmlspecialchars($_GET['error']); ?></p>
+    <?php endif; ?>
 
     <form action="register_process.php" method="post">
       <label for="username">Username</label>
-      <input type="text" id="username" name="username">
+      <input type="text" id="username" name="username" required>
 
       <label for="email">Email Address</label>
-      <input type="text" id="email" name="email">
+      <input type="email" id="email" name="email" required>
 
       <label for="password">Password</label>
-      <input type="text" id="password" name="password">
+      <input type="password" id="password" name="password" required>
 
       <button type="submit" class="btn">Register</button>
     </form>
