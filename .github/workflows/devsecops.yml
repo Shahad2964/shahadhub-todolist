@@ -15,31 +15,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    # SonarQube SAST Scan (Cloud or Local)
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@master
-      with:
-        projectBaseDir: .
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # SonarCloud SAST Scan
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectKey: Shahad2964_shahadhub-todolist
+          organization: shahad2964
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-    # Dependency Check (SCA)
-    - name: Dependency-Check (OWASP)
-      uses: dependency-check/DependencyCheck_Action@main
-      with:
-        project: "PHP To Do"
-        path: "."
-        format: "HTML"
-        out: "reports"
+      # Dependency Check (SCA)
+      - name: OWASP Dependency-Check
+        uses: dependency-check/DependencyCheck_Action@main
+        with:
+          project: "PHP To Do"
+          path: "."
+          format: "HTML"
+          out: "reports"
 
-    - name: Upload SCA Report
-      uses: actions/upload-artifact@v3
-      with:
-        name: dependency-check-report
-        path: reports
+      - name: Upload SCA Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-check-report
+          path: reports
 
   # -----------------------------
   # 2. Dynamic Analysis (DAST)
@@ -49,22 +51,26 @@ jobs:
     needs: sast_and_sca
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    # Run your PHP app temporarily
-    - name: Start PHP App
-      run: |
-        php -S 0.0.0.0:8080 -t .
-      background: true
+      # Start PHP app locally
+      - name: Start PHP App
+        run: |
+          php -S 0.0.0.0:8080 -t . &
+          sleep 5
 
-    # Wait few seconds for server to start
-    - name: Wait
-      run: sleep 5
+      # OWASP ZAP Baseline Scan
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.11.0
+        with:
+          target: "http://localhost:8080"
+          format: "HTML"
+          output: "zap-report.html"
 
-    # ZAP Baseline DAST
-    - name: OWASP ZAP Baseline Scan
-      uses: zaproxy/action-baseline@v0.11.0
-      with:
-        target: "http://localhost:8080"
-
+      # Upload ZAP Report
+      - name: Upload DAST Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: zap-report
+          path: zap-report.html
