@@ -1,3 +1,4 @@
+
 <?php
 // This page only displays the registration form
 // Processing happens in: register_process.php

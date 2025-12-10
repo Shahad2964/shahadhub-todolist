@@ -1,39 +1,49 @@
 <?php
-// This page displays the login form
-// Processing happens in login_process.php
 session_start();
+require_once "config.php";
+
+// Only allow POST requests
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    header("Location: login.php");
+    exit;
+}
+
+// Get form data
+$email    = trim($_POST["email"] ?? "");
+$password = trim($_POST["password"] ?? "");
+
+// Basic validation
+if (empty($email) || empty($password)) {
+    header("Location: login.php?error=Please fill all fields");
+    exit;
+}
+
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    header("Location: login.php?error=Invalid email format");
+    exit;
+}
+
+// Fetch user from database
+$stmt = $conn->prepare("SELECT id, username, password FROM users WHERE email = ? LIMIT 1");
+if (!$stmt) {
+    header("Location: login.php?error=Database error");
+    exit;
+}
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$stmt->close();
+
+if (!$user || !password_verify($password, $user["password"])) {
+    header("Location: login.php?error=Invalid email or password");
+    exit;
+}
+
+// Login successful
+$_SESSION["user_id"] = $user["id"];
+$_SESSION["username"] = $user["username"];
+
+header("Location: todo.php");
+exit;
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - ShahadHub</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="container card">
-    <h1>Login</h1>
-
-    <?php if (isset($_GET['registered'])): ?>
-      <p class="success">Registration successful! You can now log in.</p>
-    <?php endif; ?>
-
-    <?php if (isset($_GET['error'])): ?>
-      <p class="error">Error: <?php echo htmlspecialchars($_GET['error']); ?></p>
-    <?php endif; ?>
-
-    <form action="login_process.php" method="post">
-      <label for="email">Email Address</label>
-      <input type="email" id="email" name="email" required>
-
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" required>
-
-      <button type="submit" class="btn">Login</button>
-    </form>
-
-    <p>Don't have an account? <a href="register.php">Register</a></p>
-  </div>
-</body>
-</html>
