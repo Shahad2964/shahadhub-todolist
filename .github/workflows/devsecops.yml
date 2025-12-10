@@ -1,4 +1,4 @@
-name: Secure CI/CD Pipeline
+name: DevSecOps Pipeline
 
 on:
   push:
@@ -7,68 +7,24 @@ on:
     branches: [ "main" ]
 
 jobs:
-
-  # -----------------------------
-  # 1. Static Analysis (SAST) + SCA
-  # -----------------------------
-  sast_and_sca:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # SonarCloud SAST Scan
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install dependencies
+        run: composer install --no-interaction
+
       - name: SonarCloud Scan
-  uses: SonarSource/sonarcloud-github-action@master
-  env:
-    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  with:
-    projectBaseDir: .
-
-      # Dependency Check (SCA)
-      - name: OWASP Dependency-Check
-        uses: dependency-check/DependencyCheck_Action@main
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          project: "PHP To Do"
-          path: "."
-          format: "HTML"
-          out: "reports"
-
-      - name: Upload SCA Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: dependency-check-report
-          path: reports
-
-  # -----------------------------
-  # 2. Dynamic Analysis (DAST)
-  # -----------------------------
-  dast_scan:
-    runs-on: ubuntu-latest
-    needs: sast_and_sca
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      # Start PHP app locally
-      - name: Start PHP App
-        run: |
-          php -S 0.0.0.0:8080 -t . &
-          sleep 5
-
-      # OWASP ZAP Baseline Scan
-      - name: OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.11.0
-        with:
-          target: "http://localhost:8080"
-          format: "HTML"
-          output: "zap-report.html"
-
-      # Upload ZAP Report
-      - name: Upload DAST Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: zap-report
-          path: zap-report.html
+          projectBaseDir: .
