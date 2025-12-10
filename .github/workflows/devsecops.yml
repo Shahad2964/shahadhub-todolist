@@ -20,13 +20,11 @@ jobs:
 
       # SonarCloud SAST Scan
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        with:
-          projectKey: Shahad2964_shahadhub-todolist
-          organization: shahad2964
-          projectBaseDir: .
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  uses: SonarSource/sonarcloud-github-action@master
+  env:
+    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  with:
+    projectBaseDir: .
 
       # Dependency Check (SCA)
       - name: OWASP Dependency-Check
