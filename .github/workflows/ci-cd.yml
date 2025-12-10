@@ -13,13 +13,14 @@ permissions:
 
 jobs:
   # -------------------------
-  # 1) SAST Job (SonarCloud)
+  # 1) SAST (SonarCloud)
   # -------------------------
   sast:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
@@ -30,8 +31,20 @@ jobs:
             -Dsonar.organization=shahad2964
             -Dsonar.sources=.
 
+      # حفظ تقرير SAST
+      - name: Save SAST Report
+        run: |
+          mkdir -p logs
+          cp .scannerwork/report-task.txt logs/sonar-report.txt
+
+      - name: Upload SAST Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonar-report
+          path: logs/sonar-report.txt
+
   # -------------------------
-  # 2) SCA Job (Dependency-Check)
+  # 2) SCA (Dependency-Check)
   # -------------------------
   sca:
     runs-on: ubuntu-latest
@@ -39,6 +52,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
       - name: Dependency-Check (SCA)
         uses: dependency-check/DependencyCheck_Action@main
         with:
@@ -46,14 +60,21 @@ jobs:
           path: "."
           format: "HTML"
           out: "reports"
+
+      # حفظ تقرير SCA
+      - name: Save SCA Report
+        run: |
+          mkdir -p logs
+          cp reports/dependency-check-report.html logs/dependency-$(date +"%Y-%m-%d").html
+
       - name: Upload SCA Report
         uses: actions/upload-artifact@v4
         with:
-          name: dependency-check-report
-          path: reports
+          name: dependency-report
+          path: logs
 
   # -------------------------
-  # 3) Staging Environment (Fake HTML)
+  # 3) Staging Environment
   # -------------------------
   staging:
     runs-on: ubuntu-latest
@@ -62,7 +83,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # إنشاء صفحة HTML فارغة
       - name: Create Dummy HTML
         run: |
           echo "<!DOCTYPE html><html><head><title>Test</title></head><body>Hello</body></html>" > index.html
@@ -76,7 +96,7 @@ jobs:
         run: curl -I http://localhost:8080
 
   # -------------------------
-  # 4) DAST Job (ZAP Baseline)
+  # 4) DAST (OWASP ZAP)
   # -------------------------
   dast:
     runs-on: ubuntu-latest
@@ -97,8 +117,14 @@ jobs:
           target: "http://localhost:8080"
           cmd_options: "-r zap-report.html"
 
+      # حفظ تقرير DAST
+      - name: Save DAST Report
+        run: |
+          mkdir -p logs
+          cp zap-report.html logs/zap-$(date +"%Y-%m-%d").html
+
       - name: Upload DAST Report
         uses: actions/upload-artifact@v4
         with:
           name: zap-report
-          path: zap-report.html
+          path: logs
