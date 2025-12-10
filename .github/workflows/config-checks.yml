@@ -1,0 +1,52 @@
+name: Automated Configuration Checks
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  config-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run configuration checks
+        run: |
+          LOGFILE="config-checks.log"
+          echo "🔍 Starting configuration checks..." > $LOGFILE
+
+          # -----------------------------
+          # 1) Check for hardcoded secrets
+          # -----------------------------
+          echo "Checking for hardcoded secrets..." >> $LOGFILE
+          if grep -r -E "(password|admin|123456)" ./; then
+            echo "❌ Hardcoded secret found!" >> $LOGFILE
+            exit 1
+          else
+            echo "✅ No hardcoded secrets found." >> $LOGFILE
+          fi
+
+          # ---------------------------------------
+          # 2) Check for environment variable usage
+          # ---------------------------------------
+          echo "Checking for environment variables in config.php..." >> $LOGFILE
+          if grep -q "getenv" ./config.php; then
+            echo "✅ Environment variables are used." >> $LOGFILE
+          else
+            echo "❌ No environment variables detected!" >> $LOGFILE
+            exit 1
+          fi
+
+          # ---------------------------------------
+          # 3) Show results in Actions log
+          # ---------------------------------------
+          cat $LOGFILE
+
+      - name: Upload configuration log
+        uses: actions/upload-artifact@v4
+        with:
+          name: config-check-log
+          path: config-checks.log
